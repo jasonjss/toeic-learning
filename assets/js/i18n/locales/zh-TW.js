@@ -75,6 +75,8 @@ export default {
     "speakingAudioWorkletEnabled": "AudioWorklet 已啟用",
     "speakingAudioWorkletFallback": "AudioWorklet 不可用，已使用 ScriptProcessor 降級",
     "speakingInProgress": "口說進行中，請直接對著麥克風說話",
+    "speakingLogRoleAi": "AI 說：",
+    "speakingMicUnavailable": "無法存取麥克風：目前環境不支援麥克風（需使用 HTTPS 或 localhost 開啟）。本機開發請改用 http://localhost:7031 開啟，不要使用 http://IP 或 http://主機名稱 的方式。",
     "speakingLevelLabel": "口說等級",
     "speakingLevelBeginner": "初級",
     "speakingLevelIntermediate": "中級",

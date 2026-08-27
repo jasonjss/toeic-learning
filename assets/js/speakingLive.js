@@ -36,6 +36,28 @@ const listeners = {
     connected: null
 };
 
+// 語音轉錄緩衝：轉錄以「增量片段」送達（可能一次只送一個單字），
+// 先累積起來，等 Transcription.finished 送達時再一次印出完整句子。
+let aiTurnBuffer = '';
+let userTurnBuffer = '';
+
+function appendTranscriptChunk(buffer, text) {
+    const chunk = String(text || '').trim();
+    if (!chunk) return buffer;
+    if (!buffer) return chunk;
+    // 若新片段以標點開頭（例如 ".", ","），直接相接不補空格
+    return /^[.,!?;:'")\]、。！？，；：」』）]/.test(chunk) ? buffer + chunk : buffer + ' ' + chunk;
+}
+
+function flushTranscriptBuffer(role) {
+    const buffer = role === 'ai' ? aiTurnBuffer : userTurnBuffer;
+    if (!buffer.trim()) return;
+    // 語音轉錄用獨立 role 'ai-transcript'，讓顯示層可區分「轉錄」與「modelTurn 文字」
+    emitLog(role === 'ai' ? 'ai-transcript' : role, buffer.trim());
+    if (role === 'ai') aiTurnBuffer = '';
+    else userTurnBuffer = '';
+}
+
 function resolveAccentId(accent) {
     const a = String(accent || '').trim();
     if (a === 'random') return ACCENT_IDS[Math.floor(Math.random() * ACCENT_IDS.length)];
@@ -195,6 +217,10 @@ async function connectLive(topic, score = 700, level = '', accent = 'random') {
                 prebuiltVoiceConfig: { voiceName }
             }
         },
+        // 啟用語音轉錄：outputAudioTranscription 轉錄 AI 語音、inputAudioTranscription 轉錄使用者語音
+        // （對應 Python SDK 的 output_audio_transcription / input_audio_transcription）
+        outputAudioTranscription: {},
+        inputAudioTranscription: {},
         systemInstruction: `You are a TOEIC live speaking coach in an interactive conversation.
 Learner level: ${levelConfig.promptLevel}. Topic: "${topic}".
 
@@ -230,10 +256,29 @@ ${levelConfig.domains}`
             },
             onmessage: (message) => {
                 if (destroyed) return;
-                if (message?.serverContent?.interrupted) {
+                const sc = message?.serverContent;
+                if (sc?.interrupted) {
                     nextPlayTime = outputCtx ? outputCtx.currentTime : 0;
+                    // 被打斷時把已累積的轉錄沖出，避免遺失
+                    flushTranscriptBuffer('ai');
+                    flushTranscriptBuffer('user');
                 }
-                const parts = message?.serverContent?.modelTurn?.parts || [];
+                // 語音轉錄（outputAudioTranscription / inputAudioTranscription 啟用）：
+                // 增量片段先累積，等 finished 送達再一次顯示完整句子；
+                // 注意 text 與 finished 可能分開送達，須個別判斷
+                if (sc?.outputTranscription) {
+                    if (sc.outputTranscription.text) {
+                        aiTurnBuffer = appendTranscriptChunk(aiTurnBuffer, sc.outputTranscription.text);
+                    }
+                    if (sc.outputTranscription.finished) flushTranscriptBuffer('ai');
+                }
+                if (sc?.inputTranscription) {
+                    if (sc.inputTranscription.text) {
+                        userTurnBuffer = appendTranscriptChunk(userTurnBuffer, sc.inputTranscription.text);
+                    }
+                    if (sc.inputTranscription.finished) flushTranscriptBuffer('user');
+                }
+                const parts = sc?.modelTurn?.parts || [];
                 const textPart = parts.find(p => typeof p?.text === 'string' && p.text.trim());
                 if (textPart?.text) emitLog('ai', textPart.text);
 
@@ -243,9 +288,12 @@ ${levelConfig.domains}`
                     emitStatus(t('speakingAiResponding'));
                     audioParts.forEach(part => playPcm16Chunk(part.inlineData.data, 24000));
                 }
-                if (message?.serverContent?.turnComplete) {
+                if (sc?.turnComplete) {
                     state.speakingState.isResponding = false;
                     emitStatus(t('speakingWaitingUser'));
+                    // 備案：若 finished 未送達，回合結束時沖出累積的轉錄
+                    flushTranscriptBuffer('ai');
+                    flushTranscriptBuffer('user');
                 }
             },
             onerror: (e) => {
@@ -325,6 +373,9 @@ function setupMicWithScriptProcessorFallback() {
 }
 
 async function setupMicStream() {
+    if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error(t('speakingMicUnavailable'));
+    }
     mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: {
             echoCancellation: true,
@@ -362,12 +413,21 @@ export async function startSpeakingSession(input, callbacks = {}) {
     state.speakingState.isResponding = false;
 
     await connectLive(topic, score, level, accent);
-    await setupMicStream();
+    try {
+        await setupMicStream();
+    } catch (error) {
+        // 麥克風失敗時一併關閉已建立的 liveSession，避免殘留連線資源
+        await stopSpeakingSession();
+        throw error;
+    }
     emitLog('system', t('speakingSessionStarted'));
 }
 
 export async function stopSpeakingSession() {
     destroyed = true;
+    // 停止前沖出未完成的轉錄片段，並清空緩衝避免殘留到下次會話
+    flushTranscriptBuffer('ai');
+    flushTranscriptBuffer('user');
     stopAllOutputAudio();
     if (workletNode) {
         workletNode.port.onmessage = null;

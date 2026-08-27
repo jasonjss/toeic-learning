@@ -1,7 +1,7 @@
 {
-  "version": "1.4.1",
-  "date": "2026-05-25",
+  "version": "1.4.1.2",
+  "date": "2026-08-26",
   "changes": [
-    "Restore gemini to fash 2.5"
+    "口說對話：顯示語音轉錄文字"
   ]
 }
