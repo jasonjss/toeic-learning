@@ -92,7 +92,7 @@ Long-press **any word** in a passage to see part of speech, IPA, Chinese meaning
 ### 🔀 Dual AI providers, switch freely
 
 - Choose **Google Gemini** or **OpenAI** as your API provider in settings
-- Built-in list of common models (e.g. Gemini 2.5 Flash / Pro, GPT-4o mini / GPT-4o), with support for **manually entering a model name**
+- Built-in list of common models (e.g. Gemini Flash / Pro, GPT-4o mini / GPT-4o), with support for **manually entering a model name**
 - Text generation, voice playback, mock exams, and speaking conversation all use the selected provider
 - A **Test API Key** button in settings lets you verify your key works right after pasting it
 
@@ -214,7 +214,7 @@ After signing in on the settings page, you can use **Back Up Now / Restore from 
 
 - **Single-file frontend architecture** (Single HTML File) - zero backend, zero dependencies
 - **Dual AI providers** - switch between Google Gemini and OpenAI, with custom model names
-- **Google Gemini 2.5 Flash / OpenAI GPT-4o mini** - text generation
+- **Google Gemini Flash / OpenAI GPT-4o mini** - text generation
 - **Google Gemini TTS / OpenAI TTS (tts-1)** - AI speech synthesis
 - **IndexedDB** - local persistent storage
 - **Google Drive appDataFolder** - cloud backup

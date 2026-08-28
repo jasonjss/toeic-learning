@@ -72,14 +72,14 @@ export function getNextReviewTime(level) {
     return now.getTime() + days * 86400000;
 }
 
-export const TEXT_MODEL = "gemini-2.5-flash";
-export const TTS_MODEL = "gemini-2.5-flash-preview-tts";
-export const LIVE_AUDIO_MODEL = "gemini-2.5-flash-native-audio-latest";
+export const TEXT_MODEL = "gemini-3.6-flash";
+export const TTS_MODEL = "gemini-3.1-flash-tts-preview";
+export const LIVE_AUDIO_MODEL = "gemini-3.1-flash-live-preview";
 
 export const GEMINI_TEXT_MODELS = [
+    { id: 'gemini-3.6-flash', labelKey: 'modelGemini36Flash' },
+    { id: 'gemini-3.1-pro-preview', labelKey: 'modelGemini31Pro' },
     { id: 'gemini-2.5-flash', labelKey: 'modelGemini25Flash' },
-    { id: 'gemini-2.5-pro', labelKey: 'modelGemini25Pro' },
-    { id: 'gemini-2.0-flash', labelKey: 'modelGemini20Flash' },
 ];
 
 export const OPENAI_TEXT_MODEL = 'gpt-4o-mini';

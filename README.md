@@ -94,7 +94,7 @@
 ### 🔀 雙 AI 供應商，自由切換
 
 - 可在設定中選擇 **Google Gemini** 或 **OpenAI** 作為 API 供應商
-- 內建常用模型清單（如 Gemini 2.5 Flash / Pro、GPT-4o mini / GPT-4o），也支援**手動輸入模型名稱**
+- 內建常用模型清單（如 Gemini Flash / Pro、GPT-4o mini / GPT-4o），也支援**手動輸入模型名稱**
 - 文字生成、語音朗讀、模擬考試、口說對話皆可使用所選供應商
 - 設定中提供「測試 API Key」按鈕，貼上後即可確認是否可用
 
@@ -218,7 +218,7 @@ AI 生成文章後自動跳到「學習」頁面：
 
 - **純前端單檔架構**（Single HTML File）— 零後端、零依賴
 - **雙 AI 供應商** — 可切換 Google Gemini 或 OpenAI，並支援自訂模型名稱
-- **Google Gemini 2.5 Flash / OpenAI GPT-4o mini** — 文字生成
+- **Google Gemini Flash / OpenAI GPT-4o mini** — 文字生成
 - **Google Gemini TTS / OpenAI TTS（tts-1）** — AI 語音合成
 - **IndexedDB** — 本地資料持久化
 - **Google Drive appDataFolder** — 雲端備份
