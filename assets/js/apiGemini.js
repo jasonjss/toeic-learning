@@ -40,7 +40,7 @@ export async function fetchGeminiText(score, customTopic) {
     const targetLang = `${locale.name} (${locale.inLocal})`;
     const topicLine = customTopic
         ? `about "${customTopic}" suitable for this level.`
-        : `about one random TOEIC-friendly scenario from this range: office communication, meetings, email updates, travel arrangements, customer service, logistics and shipping, human resources, marketing campaigns, product launches, scheduling conflicts, workplace problem-solving, announcements, and professional daily-life errands.`;
+        : `about one random TOEIC-friendly scenario from this range: office communication, meetings, email updates, travel arrangements, customer service, logistics and shipping, human resources, marketing campaigns, product launches, scheduling conflicts, workplace problem-solving, announcements, and professional daily-life errands. Please also randomly assign an emotional tone or urgency level for it (such as urgent/pressing, polite/cooperative, frustrated/complaining, or celebratory) to ensure diverse and dynamic practice content.`;
     const prompt = `
         You are a strict TOEIC tutor. Target Score: ${score}.
         Task: Generate a SHORT reading comprehension passage (approx 60-80 words, 30 seconds reading time) ${topicLine}
